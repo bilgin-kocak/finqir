@@ -63,6 +63,7 @@ dev = [
     "build>=1.2",
     "mypy>=1.11",
     "pylint>=3.2",
+    "Sphinx>=7",
     "twine>=6",
     "types-certifi",
 ]
