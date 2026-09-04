@@ -1,6 +1,6 @@
 # Structured Quantum Finance Design
 
-**Status:** Proposed
+**Status:** Approved
 
 **Date:** 2026-09-04
 
