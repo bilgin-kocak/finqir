@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2019, 2023.
 #
@@ -10,20 +10,20 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Portfolio Diversification class"""
+"""Test Portfolio Diversification class"""
 
 import logging
 import unittest
-from test import QiskitFinanceTestCase
+from test import FinQIRTestCase
 
 import numpy as np
 from qiskit_optimization.problems import QuadraticProgram, VarType
-from qiskit_finance.applications.optimization import PortfolioDiversification
+from finqir.applications.optimization import PortfolioDiversification
 
 logger = logging.getLogger(__name__)
 
 
-class TestPortfolioDiversification(QiskitFinanceTestCase):
+class TestPortfolioDiversification(FinQIRTestCase):
     """Tests Portfolio Diversification application class."""
 
     def setUp(self):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2020, 2023.
 #
@@ -11,7 +11,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Utility script to verify qiskit copyright file headers"""
+"""Utility script to verify derived and new FinQIR headers."""
 
 import argparse
 import multiprocessing
@@ -47,43 +47,38 @@ def discover_files(code_paths, exclude_folders):
 
 def validate_header(file_path):
     """Validate the header for a single file"""
-    header = """# This code is part of a Qiskit project.
-#
-"""
-    apache_text = """#
-# This code is licensed under the Apache License, Version 2.0. You may
-# obtain a copy of this license in the LICENSE.txt file in the root directory
-# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
-#
-# Any modifications or derivative works of this code must retain this
-# copyright notice, and modified files need to carry a notice indicating
-# that they have been altered from the originals.
-"""
-    count = 0
+    project_lines = {
+        "# This code is part of a Qiskit project.\n",
+        "# This file is derived from Qiskit Finance for use in FinQIR.\n",
+        "# This file is part of FinQIR.\n",
+    }
+    license_lines = {
+        "# This code is licensed under the Apache License, Version 2.0. You may\n",
+        "# obtain a copy of this license in the LICENSE.txt file in the root directory\n",
+        "# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.\n",
+    }
     with open(file_path, encoding="utf8") as code_file:
         lines = code_file.readlines()
-    start = 0
-    for index, line in enumerate(lines):
-        count += 1
-        if count > 5:
-            return file_path, False, "Header not found in first 5 lines"
-        if count <= 2 and pep263.match(line):
+
+    for line in lines[:2]:
+        if pep263.match(line):
             return file_path, False, "Unnecessary encoding specification (PEP 263, 3120)"
-        if line == "# This code is part of a Qiskit project.\n":
-            start = index
-            break
-    if "".join(lines[start : start + 2]) != header:
-        return file_path, False, f"Header up to copyright line does not match: {header}"
-    if not lines[start + 2].startswith("# (C) Copyright IBM 20"):
+
+    try:
+        start = next(index for index, line in enumerate(lines[:5]) if line in project_lines)
+    except StopIteration:
+        return file_path, False, "Project header not found in first 5 lines"
+
+    if start + 2 >= len(lines) or not lines[start + 2].startswith("# (C) Copyright "):
         return file_path, False, "Header copyright line not found"
-    if "".join(lines[start + 3 : start + 11]) != apache_text:
-        return file_path, False, f"Header apache text string doesn't match:\n {apache_text}"
+    if not license_lines.issubset(set(lines[start + 3 : start + 12])):
+        return file_path, False, "Apache-2.0 license notice is incomplete"
     return file_path, True, None
 
 
 def _main():
     default_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "qiskit_finance"
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "finqir"
     )
     parser = argparse.ArgumentParser(description="Check file headers.")
     parser.add_argument(
@@ -91,7 +86,7 @@ def _main():
         type=str,
         nargs="*",
         default=[default_path],
-        help="Paths to scan by default uses ../qiskit_finance from the script",
+        help="Paths to scan; by default uses ../finqir from the script",
     )
     args = parser.parse_args()
     files = discover_files(args.paths, exclude_folders=[])

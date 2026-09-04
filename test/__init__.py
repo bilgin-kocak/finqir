@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2018, 2023.
 #
@@ -10,8 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Finance test packages """
+"""Finance test packages"""
 
-from .finance_test_case import QiskitFinanceTestCase
+from .finance_test_case import FinQIRTestCase
 
-__all__ = ["QiskitFinanceTestCase"]
+__all__ = ["FinQIRTestCase"]

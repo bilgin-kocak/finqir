@@ -21,30 +21,26 @@ concurrency:
 
 jobs:
   docs_publish:
-    if: ${{ startsWith(github.ref, 'refs/heads/stable') && contains('["t-imamichi","mtreinish","stefan-woerner","woodsp-ibm"]', github.actor) }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python-version }}
-      - uses: ./.github/actions/install-finance
-        with:
-          os: ${{ matrix.os }}
-      - name: Install Dependencies
+          python-version: "3.12"
+      - name: Install FinQIR and documentation dependencies
+        run: python -m pip install -e ".[docs]"
+      - name: Install system dependencies
         run: |
-          pip install jupyter qiskit[visualization]
+          sudo apt-get update
           sudo apt-get install -y pandoc graphviz
         shell: bash
       - name: Build docs
         env:
           QISKIT_PARALLEL: False
-          QISKIT_DOCS_BUILD_TUTORIALS: 'always'
         run: |
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
           tools/ignore_untagged_notes.sh

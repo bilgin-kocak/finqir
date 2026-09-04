@@ -1,9 +1,8 @@
-<!-- Copyright Contributors to the Qiskit project. -->
-
 # Code of Conduct
-All members of this project agree to adhere to the Qiskit Code of Conduct listed at [https://github.com/Qiskit/qiskit/blob/master/CODE_OF_CONDUCT.md](https://github.com/Qiskit/qiskit/blob/master/CODE_OF_CONDUCT.md)
 
-----
+FinQIR contributors and participants are expected to follow the
+[Contributor Covenant, version 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
 
-License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/),
-Copyright Contributors to Qiskit.
+Report unacceptable behavior privately to the project owner through the
+contact methods on the [owner's GitHub profile](https://github.com/bilgin-kocak)
+rather than in a public issue.

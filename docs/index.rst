@@ -1,13 +1,14 @@
 #######################
-Qiskit Finance overview
+FinQIR overview
 #######################
 
 Overview
 ==============
 
-**Qiskit Finance** is an open-source framework that contains uncertainty components for stock/securities problems,
-applications for finance problems, such as portfolio optimization, and data providers to source real or random data to
-finance experiments.
+**FinQIR** is an independent open-source toolkit for structured quantum-finance
+modeling, compilation, and optimization on Qiskit. It serves finance engineers
+with recognizable financial concepts and quantum engineers with inspectable
+mappings, circuits, constraints, and results.
 
 Next Steps
 =================================
@@ -22,9 +23,9 @@ Next Steps
     Overview <self>
     Getting Started <getting_started>
     Tutorials <tutorials/index>
-    API Reference <apidocs/qiskit_finance>
+    API Reference <apidocs/finqir>
     Release Notes <release_notes>
-    GitHub <https://github.com/qiskit-community/qiskit-finance>
+    GitHub <https://github.com/bilgin-kocak/finqir>
 
 
 .. Hiding - Indices and tables

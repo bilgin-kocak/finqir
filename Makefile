@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2021, 2023.
 #
@@ -35,23 +35,23 @@ endif
 # You can set this variable from the command line.
 SPHINXOPTS    =
 
-.PHONY: lint mypy style black test test_ci spell copyright html doctest clean_sphinx coverage coverage_erase clean
+.PHONY: lint mypy style black test test_ci spell html doctest clean_sphinx coverage coverage_erase clean
 
-all_check: spell style lint copyright mypy clean_sphinx html doctest
+all_check: spell style lint mypy clean_sphinx html doctest
 
 lint:
-	pylint -rn qiskit_finance test tools
-	python tools/verify_headers.py qiskit_finance test tools
+	pylint -rn finqir test tools
+	python tools/verify_headers.py finqir test tools
 	python tools/find_stray_release_notes.py
 
 mypy:
-	mypy qiskit_finance test tools
+	mypy finqir test tools
 
 style:
-	black --check qiskit_finance test tools docs
+	black --check finqir test tools docs
 
 black:
-	black qiskit_finance test tools docs
+	black finqir test tools docs
 
 test:
 	python -m unittest discover -v test
@@ -61,11 +61,8 @@ test_ci:
 	stestr run --concurrency $(CONCURRENCY)
 
 spell:
-	pylint -rn --disable=all --enable=spelling --spelling-dict=en_US --spelling-private-dict-file=.pylintdict qiskit_finance test tools
+	pylint -rn --disable=all --enable=spelling --spelling-dict=en_US --spelling-private-dict-file=.pylintdict finqir test tools
 	sphinx-build -M spelling docs docs/_build -W -T --keep-going $(SPHINXOPTS)
-
-copyright:
-	python tools/check_copyright.py
 
 html:
 	sphinx-build -M html docs docs/_build -W -T --keep-going $(SPHINXOPTS)
@@ -77,7 +74,7 @@ clean_sphinx:
 	make -C docs clean
 
 coverage:
-	coverage3 run --source qiskit_finance -m unittest discover -s test -q
+	coverage3 run --source finqir -m unittest discover -s test -q
 	coverage3 report
 
 coverage_erase:

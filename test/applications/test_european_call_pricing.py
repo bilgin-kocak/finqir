@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2020, 2023.
 #
@@ -10,18 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test European Call Expected Value uncertainty problem """
+"""Test European Call Expected Value uncertainty problem"""
 
 import unittest
-from test import QiskitFinanceTestCase
+from test import FinQIRTestCase
 
 from qiskit.circuit.library import LinearAmplitudeFunction
 from qiskit.quantum_info import Operator
-from qiskit_finance.applications.estimation import EuropeanCallPricing
-from qiskit_finance.circuit.library.probability_distributions import UniformDistribution
+from finqir.applications.estimation import EuropeanCallPricing
+from finqir.circuit.library.probability_distributions import UniformDistribution
 
 
-class TestEuropeanCallPricing(QiskitFinanceTestCase):
+class TestEuropeanCallPricing(FinQIRTestCase):
     """Tests the EuropeanCallPricing application"""
 
     def test_to_estimation_problem(self):

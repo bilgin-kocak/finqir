@@ -14,9 +14,10 @@
 
 - Support Python `>=3.10`.
 - Support Qiskit `>=2.5.2,<3`.
+- Use `finqir` for both the PyPI distribution and Python import namespace, beginning at version `0.1.0`.
 - Require `qiskit-addon-opt-mapper>=0.1.0` for the new mapping layer.
 - Treat `qiskit-algorithms>=0.4.0` as the algorithms extra; the new modeling, mapping, compilation, QAOA synthesis, and result modules must import without it.
-- Keep the new implementation additive. Do not remove or redirect existing 0.4.1 public APIs in this work.
+- Keep new APIs additive within FinQIR. Do not create a `qiskit_finance` compatibility package that could collide with the official distribution.
 - Preserve original asset order, identifiers, objective components, and named constraints through every transformation.
 - Never silently repair an infeasible sample. Report the original sample and its constraint diagnostics.
 - Use deterministic ordering for assets, constraint names, trace records, graph edges, interaction groups, samples, and serialized data.
@@ -106,40 +107,40 @@ solve(
 ## File Responsibility Map
 
 ```text
-qiskit_finance/problems/assets.py                  asset identity and JSON metadata
-qiskit_finance/problems/variables.py               holding domains, bounds, and lot size
-qiskit_finance/_typing.py                          shared JSON type aliases
-qiskit_finance/problems/objectives.py              objective components and coefficients
-qiskit_finance/problems/constraints.py             named constraints and evaluation
-qiskit_finance/problems/evaluation.py              objective/feasibility value objects
-qiskit_finance/problems/structured_portfolio_problem.py aggregate and serialization
-qiskit_finance/mappings/base.py                     mapping protocols, policies, and context
-qiskit_finance/mappings/trace.py                    reversible codecs and audit records
-qiskit_finance/mappings/binary_holdings.py          binary OptimizationProblem construction
-qiskit_finance/mappings/constraint_handling.py      strategy classification
-qiskit_finance/mappings/pipeline.py                 ordered mapping orchestration
-qiskit_finance/compilation/artifact.py              compiled and final artifacts
-qiskit_finance/compilation/base.py                  pass protocol and context
-qiskit_finance/compilation/pass_manager.py          dependency-aware pass execution
-qiskit_finance/compilation/passes/validation.py     structural validation
-qiskit_finance/compilation/passes/fixed_holdings.py fixed inference and elimination
-qiskit_finance/compilation/passes/penalties.py      calibration and QUBO materialization
-qiskit_finance/compilation/passes/interactions.py   graph and commuting schedule
-qiskit_finance/compilation/passes/layout.py         target-aware placement
-qiskit_finance/qaoa/specification.py                pre-circuit QAOA value objects
-qiskit_finance/qaoa/initial_states.py               basis and feasible state preparation
-qiskit_finance/qaoa/mixers/base.py                  mixer protocol and verification
-qiskit_finance/qaoa/mixers/standard.py              transverse, fixed, cardinality mixers
-qiskit_finance/qaoa/mixers/conflict_graph.py        conflict and Grover mixers
-qiskit_finance/qaoa/synthesis.py                    late circuit generation
-qiskit_finance/compiler.py                          end-to-end compile facade
-qiskit_finance/results/finance_execution_result.py  finance samples and results
-qiskit_finance/results/interpreter.py               decoding and result selection
-qiskit_finance/workflows/sampling_qaoa.py            sampler/optimizer workflow
-qiskit_finance/applications/optimization/conflict_graph_portfolio.py application
-qiskit_finance/benchmarks/metrics.py                 circuit and finance metrics
-qiskit_finance/benchmarks/baselines.py               exact SciPy baseline
-qiskit_finance/benchmarks/truba.py                   external TRUBA adapter and runner
+finqir/problems/assets.py                  asset identity and JSON metadata
+finqir/problems/variables.py               holding domains, bounds, and lot size
+finqir/_typing.py                          shared JSON type aliases
+finqir/problems/objectives.py              objective components and coefficients
+finqir/problems/constraints.py             named constraints and evaluation
+finqir/problems/evaluation.py              objective/feasibility value objects
+finqir/problems/structured_portfolio_problem.py aggregate and serialization
+finqir/mappings/base.py                     mapping protocols, policies, and context
+finqir/mappings/trace.py                    reversible codecs and audit records
+finqir/mappings/binary_holdings.py          binary OptimizationProblem construction
+finqir/mappings/constraint_handling.py      strategy classification
+finqir/mappings/pipeline.py                 ordered mapping orchestration
+finqir/compilation/artifact.py              compiled and final artifacts
+finqir/compilation/base.py                  pass protocol and context
+finqir/compilation/pass_manager.py          dependency-aware pass execution
+finqir/compilation/passes/validation.py     structural validation
+finqir/compilation/passes/fixed_holdings.py fixed inference and elimination
+finqir/compilation/passes/penalties.py      calibration and QUBO materialization
+finqir/compilation/passes/interactions.py   graph and commuting schedule
+finqir/compilation/passes/layout.py         target-aware placement
+finqir/qaoa/specification.py                pre-circuit QAOA value objects
+finqir/qaoa/initial_states.py               basis and feasible state preparation
+finqir/qaoa/mixers/base.py                  mixer protocol and verification
+finqir/qaoa/mixers/standard.py              transverse, fixed, cardinality mixers
+finqir/qaoa/mixers/conflict_graph.py        conflict and Grover mixers
+finqir/qaoa/synthesis.py                    late circuit generation
+finqir/compiler.py                          end-to-end compile facade
+finqir/results/finance_execution_result.py  finance samples and results
+finqir/results/interpreter.py               decoding and result selection
+finqir/workflows/sampling_qaoa.py            sampler/optimizer workflow
+finqir/applications/optimization/conflict_graph_portfolio.py application
+finqir/benchmarks/metrics.py                 circuit and finance metrics
+finqir/benchmarks/baselines.py               exact SciPy baseline
+finqir/benchmarks/truba.py                   external TRUBA adapter and runner
 ```
 
 ---
@@ -150,13 +151,13 @@ qiskit_finance/benchmarks/truba.py                   external TRUBA adapter and 
 
 **Files:**
 
-- Modify: `setup.py`
+- Modify: `pyproject.toml`
 - Modify: `requirements.txt`
 - Modify: `requirements-dev.txt`
 - Modify: `tox.ini`
 - Modify: `.github/workflows/main.yml`
-- Modify: `qiskit_finance/data_providers/_base_data_provider.py`
-- Modify: `qiskit_finance/applications/__init__.py`
+- Modify: `finqir/data_providers/_base_data_provider.py`
+- Modify: `finqir/applications/__init__.py`
 - Modify: `test/circuit/test_european_call_delta_objective.py`
 - Modify: `test/circuit/test_european_call_pricing_objective.py`
 - Modify: `test/circuit/test_fixed_income_pricing_objective.py`
@@ -179,14 +180,14 @@ def guarded(name, *args, **kwargs):
         raise ImportError('blocked by test')
     return real_import(name, *args, **kwargs)
 builtins.__import__ = guarded
-import qiskit_finance
-import qiskit_finance.applications.optimization
+import finqir
+import finqir.applications.optimization
 """
     completed = subprocess.run([sys.executable, "-c", code], check=False, capture_output=True)
     self.assertEqual(completed.returncode, 0, completed.stderr.decode())
 ```
 
-Also load `setup.py` through a mocked `setuptools.setup` and assert:
+Also load `pyproject.toml` through a mocked `setuptools.setup` and assert:
 
 ```python
 self.assertEqual(setup_kwargs["python_requires"], ">=3.10")
@@ -215,7 +216,7 @@ scipy>=1.10
 numpy>=1.23
 ```
 
-Add `qiskit-algorithms>=0.4.0` to `requirements-dev.txt` so the full legacy test suite still runs. Change `qiskit_finance.applications.__init__` to import optimization applications eagerly and load estimation names through module `__getattr__`; when the extra is absent, raise `MissingOptionalLibraryError` with install command `pip install 'qiskit-finance[algorithms]'`. This keeps the new optimization namespace usable in a core installation without deleting a legacy symbol.
+Add `qiskit-algorithms>=0.4.0` to `requirements-dev.txt` so the full legacy test suite still runs. Change `finqir.applications.__init__` to import optimization applications eagerly and load estimation names through module `__getattr__`; when the extra is absent, raise `MissingOptionalLibraryError` with install command `pip install 'finqir[algorithms]'`. This keeps the new optimization namespace usable in a core installation without deleting a legacy symbol.
 
 Replace the data-provider-only `algorithm_globals.random` use with:
 
@@ -257,7 +258,7 @@ python -c "import qiskit; import qiskit_addon_opt_mapper; print(qiskit.__version
 Expected: tests pass, `pip check` reports no broken requirements, and Qiskit is in `[2.5.2,3)`.
 
 ```bash
-git add setup.py requirements.txt requirements-dev.txt tox.ini .github/workflows/main.yml qiskit_finance/data_providers/_base_data_provider.py qiskit_finance/applications/__init__.py test/test_optional_dependencies.py test/circuit/test_european_call_delta_objective.py test/circuit/test_european_call_pricing_objective.py test/circuit/test_fixed_income_pricing_objective.py
+git add pyproject.toml requirements.txt requirements-dev.txt tox.ini .github/workflows/main.yml finqir/data_providers/_base_data_provider.py finqir/applications/__init__.py test/test_optional_dependencies.py test/circuit/test_european_call_delta_objective.py test/circuit/test_european_call_pricing_objective.py test/circuit/test_fixed_income_pricing_objective.py
 git commit -m "build: target Qiskit 2.5 and Optimization Mapper"
 ```
 
@@ -265,19 +266,19 @@ git commit -m "build: target Qiskit 2.5 and Optimization Mapper"
 
 **Files:**
 
-- Modify: `qiskit_finance/exceptions.py`
-- Create: `qiskit_finance/_typing.py`
-- Create: `qiskit_finance/problems/__init__.py`
-- Create: `qiskit_finance/problems/assets.py`
-- Create: `qiskit_finance/problems/variables.py`
-- Create: `qiskit_finance/problems/evaluation.py`
+- Modify: `finqir/exceptions.py`
+- Create: `finqir/_typing.py`
+- Create: `finqir/problems/__init__.py`
+- Create: `finqir/problems/assets.py`
+- Create: `finqir/problems/variables.py`
+- Create: `finqir/problems/evaluation.py`
 - Create: `test/problems/__init__.py`
 - Create: `test/problems/test_assets.py`
 - Create: `test/problems/test_evaluation.py`
 
 **Interfaces:**
 
-- Consumes: `QiskitFinanceError`.
+- Consumes: `FinQIRError`.
 - Produces: recursive `JSONValue`, `Asset`, binary `HoldingVariable`, `ObjectiveComponentValue`, `ConstraintValue`, `PortfolioEvaluation`, `FeasibilityReport`, and the six specified exception subclasses.
 
 - [ ] **Step 1: Write failing immutable-value tests**
@@ -310,11 +311,11 @@ def test_feasibility_report_indexes_named_constraints(self):
 
 Run: `python -m unittest test.problems.test_assets test.problems.test_evaluation -v`
 
-Expected: FAIL with `ModuleNotFoundError: No module named 'qiskit_finance.problems'`.
+Expected: FAIL with `ModuleNotFoundError: No module named 'finqir.problems'`.
 
 - [ ] **Step 3: Implement frozen domain values**
 
-Add direct subclasses of `QiskitFinanceError`: `InvalidFinanceProblemError`, `InfeasiblePortfolioError`, `UnsupportedMappingError`, `ConstraintPreservationError`, `CompilationError`, and `InterpretationError`.
+Add direct subclasses of `FinQIRError`: `InvalidFinanceProblemError`, `InfeasiblePortfolioError`, `UnsupportedMappingError`, `ConstraintPreservationError`, `CompilationError`, and `InterpretationError`.
 
 Define the shared serialization type in `_typing.py`:
 
@@ -363,7 +364,7 @@ Run: `python -m unittest test.problems.test_assets test.problems.test_evaluation
 Expected: PASS.
 
 ```bash
-git add qiskit_finance/exceptions.py qiskit_finance/_typing.py qiskit_finance/problems test/problems
+git add finqir/exceptions.py finqir/_typing.py finqir/problems test/problems
 git commit -m "feat: add immutable finance domain primitives"
 ```
 
@@ -371,8 +372,8 @@ git commit -m "feat: add immutable finance domain primitives"
 
 **Files:**
 
-- Create: `qiskit_finance/problems/objectives.py`
-- Modify: `qiskit_finance/problems/__init__.py`
+- Create: `finqir/problems/objectives.py`
+- Modify: `finqir/problems/__init__.py`
 - Create: `test/problems/test_objectives.py`
 
 **Interfaces:**
@@ -440,13 +441,13 @@ Run:
 
 ```bash
 python -m unittest test.problems.test_objectives -v
-python -m mypy qiskit_finance/problems/objectives.py
+python -m mypy finqir/problems/objectives.py
 ```
 
 Expected: PASS with no type errors.
 
 ```bash
-git add qiskit_finance/problems/objectives.py qiskit_finance/problems/__init__.py test/problems/test_objectives.py
+git add finqir/problems/objectives.py finqir/problems/__init__.py test/problems/test_objectives.py
 git commit -m "feat: add structured portfolio objectives"
 ```
 
@@ -454,8 +455,8 @@ git commit -m "feat: add structured portfolio objectives"
 
 **Files:**
 
-- Create: `qiskit_finance/problems/constraints.py`
-- Modify: `qiskit_finance/problems/__init__.py`
+- Create: `finqir/problems/constraints.py`
+- Modify: `finqir/problems/__init__.py`
 - Create: `test/problems/test_constraints.py`
 
 **Interfaces:**
@@ -514,7 +515,7 @@ Run: `python -m unittest discover -s test/problems -p 'test_*.py' -v`
 Expected: PASS.
 
 ```bash
-git add qiskit_finance/problems/constraints.py qiskit_finance/problems/__init__.py test/problems/test_constraints.py
+git add finqir/problems/constraints.py finqir/problems/__init__.py test/problems/test_constraints.py
 git commit -m "feat: add named financial constraints"
 ```
 
@@ -522,12 +523,12 @@ git commit -m "feat: add named financial constraints"
 
 **Files:**
 
-- Create: `qiskit_finance/problems/structured_portfolio_problem.py`
-- Modify: `qiskit_finance/problems/__init__.py`
-- Modify: `qiskit_finance/__init__.py`
+- Create: `finqir/problems/structured_portfolio_problem.py`
+- Modify: `finqir/problems/__init__.py`
+- Modify: `finqir/__init__.py`
 - Create: `test/problems/test_structured_portfolio_problem.py`
-- Create: `docs/apidocs/qiskit_finance.problems.rst`
-- Modify: `docs/apidocs/qiskit_finance.rst`
+- Create: `docs/apidocs/finqir.problems.rst`
+- Modify: `docs/apidocs/finqir.rst`
 - Create: `releasenotes/notes/structured-portfolio-problem-a73f0c214d9b8e65.yaml`
 
 **Interfaces:**
@@ -601,7 +602,7 @@ python -m sphinx -W -T -b html docs docs/_build/html
 Expected: all problem tests, existing tests, and documentation pass.
 
 ```bash
-git add qiskit_finance/problems qiskit_finance/__init__.py test/problems docs/apidocs releasenotes/notes
+git add finqir/problems finqir/__init__.py test/problems docs/apidocs releasenotes/notes
 git commit -m "feat: add structured portfolio problem"
 ```
 
@@ -613,11 +614,11 @@ git commit -m "feat: add structured portfolio problem"
 
 **Files:**
 
-- Create: `qiskit_finance/mappings/__init__.py`
-- Create: `qiskit_finance/mappings/base.py`
-- Create: `qiskit_finance/mappings/trace.py`
-- Create: `qiskit_finance/compilation/__init__.py`
-- Create: `qiskit_finance/compilation/artifact.py`
+- Create: `finqir/mappings/__init__.py`
+- Create: `finqir/mappings/base.py`
+- Create: `finqir/mappings/trace.py`
+- Create: `finqir/compilation/__init__.py`
+- Create: `finqir/compilation/artifact.py`
 - Create: `test/mappings/__init__.py`
 - Create: `test/mappings/test_trace.py`
 - Create: `test/compilation/__init__.py`
@@ -748,7 +749,7 @@ Run: `python -m unittest test.mappings.test_trace test.compilation.test_artifact
 Expected: PASS.
 
 ```bash
-git add qiskit_finance/mappings qiskit_finance/compilation test/mappings test/compilation
+git add finqir/mappings finqir/compilation test/mappings test/compilation
 git commit -m "feat: define finance mapping artifacts"
 ```
 
@@ -756,8 +757,8 @@ git commit -m "feat: define finance mapping artifacts"
 
 **Files:**
 
-- Create: `qiskit_finance/mappings/binary_holdings.py`
-- Modify: `qiskit_finance/mappings/__init__.py`
+- Create: `finqir/mappings/binary_holdings.py`
+- Modify: `finqir/mappings/__init__.py`
 - Create: `test/mappings/test_binary_holdings.py`
 - Modify: `requirements-dev.txt`
 
@@ -820,7 +821,7 @@ python -m unittest discover -s test/mappings -p 'test_*.py' -v
 Expected: PASS, including generated examples.
 
 ```bash
-git add qiskit_finance/mappings/binary_holdings.py qiskit_finance/mappings/__init__.py test/mappings/test_binary_holdings.py requirements-dev.txt
+git add finqir/mappings/binary_holdings.py finqir/mappings/__init__.py test/mappings/test_binary_holdings.py requirements-dev.txt
 git commit -m "feat: map binary portfolios with Optimization Mapper"
 ```
 
@@ -828,13 +829,13 @@ git commit -m "feat: map binary portfolios with Optimization Mapper"
 
 **Files:**
 
-- Create: `qiskit_finance/mappings/constraint_handling.py`
-- Create: `qiskit_finance/mappings/pipeline.py`
-- Modify: `qiskit_finance/mappings/__init__.py`
+- Create: `finqir/mappings/constraint_handling.py`
+- Create: `finqir/mappings/pipeline.py`
+- Modify: `finqir/mappings/__init__.py`
 - Create: `test/mappings/test_constraint_handling.py`
 - Create: `test/mappings/test_pipeline.py`
-- Create: `docs/apidocs/qiskit_finance.mappings.rst`
-- Modify: `docs/apidocs/qiskit_finance.rst`
+- Create: `docs/apidocs/finqir.mappings.rst`
+- Modify: `docs/apidocs/finqir.rst`
 
 **Interfaces:**
 
@@ -908,7 +909,7 @@ python -m sphinx -W -T -b html docs docs/_build/html
 Expected: all mapping, artifact, existing, and docs tests pass.
 
 ```bash
-git add qiskit_finance/mappings test/mappings docs/apidocs
+git add finqir/mappings test/mappings docs/apidocs
 git commit -m "feat: add pluggable finance mapping pipeline"
 ```
 
@@ -920,8 +921,8 @@ git commit -m "feat: add pluggable finance mapping pipeline"
 
 **Files:**
 
-- Create: `qiskit_finance/applications/optimization/conflict_graph_portfolio.py`
-- Modify: `qiskit_finance/applications/optimization/__init__.py`
+- Create: `finqir/applications/optimization/conflict_graph_portfolio.py`
+- Modify: `finqir/applications/optimization/__init__.py`
 - Create: `test/applications/test_conflict_graph_portfolio.py`
 
 **Interfaces:**
@@ -992,7 +993,7 @@ python -m unittest test.mappings.test_binary_holdings -v
 Expected: PASS.
 
 ```bash
-git add qiskit_finance/applications/optimization test/applications/test_conflict_graph_portfolio.py
+git add finqir/applications/optimization test/applications/test_conflict_graph_portfolio.py
 git commit -m "feat: add conflict graph portfolios"
 ```
 
@@ -1000,9 +1001,9 @@ git commit -m "feat: add conflict graph portfolios"
 
 **Files:**
 
-- Create: `qiskit_finance/benchmarks/__init__.py`
-- Create: `qiskit_finance/benchmarks/truba.py`
-- Create: `qiskit_finance/benchmarks/baselines.py`
+- Create: `finqir/benchmarks/__init__.py`
+- Create: `finqir/benchmarks/truba.py`
+- Create: `finqir/benchmarks/baselines.py`
 - Create: `test/benchmarks/__init__.py`
 - Create: `test/benchmarks/test_truba.py`
 - Create: `test/benchmarks/test_baselines.py`
@@ -1075,7 +1076,7 @@ Run:
 
 ```bash
 python -m unittest discover -s test/benchmarks -p 'test_*.py' -v
-python -m qiskit_finance.benchmarks.truba validate --input-dir /Users/bilginkocak/hackathon/q-prehackathon/truba/ssb_exam/final
+python -m finqir.benchmarks.truba validate --input-dir /Users/bilginkocak/hackathon/q-prehackathon/truba/ssb_exam/final
 ```
 
 Expected: tests pass; the command reports eight valid inputs, IDs `1:1` through `4:2`, and a feasible optimal reference for each.
@@ -1083,7 +1084,7 @@ Expected: tests pass; the command reports eight valid inputs, IDs `1:1` through 
 - [ ] **Step 6: Commit and request the 0.3 gate**
 
 ```bash
-git add qiskit_finance/benchmarks test/benchmarks test/resources/truba
+git add finqir/benchmarks test/benchmarks test/resources/truba
 git commit -m "feat: add TRUBA conflict graph adapter"
 ```
 
@@ -1095,11 +1096,11 @@ git commit -m "feat: add TRUBA conflict graph adapter"
 
 **Files:**
 
-- Create: `qiskit_finance/compilation/base.py`
-- Create: `qiskit_finance/compilation/pass_manager.py`
-- Create: `qiskit_finance/compilation/passes/__init__.py`
-- Create: `qiskit_finance/compilation/passes/validation.py`
-- Modify: `qiskit_finance/compilation/__init__.py`
+- Create: `finqir/compilation/base.py`
+- Create: `finqir/compilation/pass_manager.py`
+- Create: `finqir/compilation/passes/__init__.py`
+- Create: `finqir/compilation/passes/validation.py`
+- Modify: `finqir/compilation/__init__.py`
 - Create: `test/compilation/test_pass_manager.py`
 - Create: `test/compilation/test_validation_pass.py`
 
@@ -1179,7 +1180,7 @@ Run: `python -m unittest test.compilation.test_pass_manager test.compilation.tes
 Expected: PASS.
 
 ```bash
-git add qiskit_finance/compilation test/compilation
+git add finqir/compilation test/compilation
 git commit -m "feat: add finance compilation pass manager"
 ```
 
@@ -1187,8 +1188,8 @@ git commit -m "feat: add finance compilation pass manager"
 
 **Files:**
 
-- Create: `qiskit_finance/compilation/passes/fixed_holdings.py`
-- Modify: `qiskit_finance/compilation/passes/__init__.py`
+- Create: `finqir/compilation/passes/fixed_holdings.py`
+- Modify: `finqir/compilation/passes/__init__.py`
 - Create: `test/compilation/test_fixed_holding_propagation.py`
 
 **Interfaces:**
@@ -1257,7 +1258,7 @@ python -m unittest test.applications.test_conflict_graph_portfolio -v
 Expected: PASS.
 
 ```bash
-git add qiskit_finance/compilation/passes/fixed_holdings.py qiskit_finance/compilation/passes/__init__.py test/compilation/test_fixed_holding_propagation.py
+git add finqir/compilation/passes/fixed_holdings.py finqir/compilation/passes/__init__.py test/compilation/test_fixed_holding_propagation.py
 git commit -m "feat: propagate fixed portfolio holdings"
 ```
 
@@ -1265,7 +1266,7 @@ git commit -m "feat: propagate fixed portfolio holdings"
 
 **Files:**
 
-- Modify: `qiskit_finance/compilation/passes/fixed_holdings.py`
+- Modify: `finqir/compilation/passes/fixed_holdings.py`
 - Create: `test/compilation/test_fixed_variable_elimination.py`
 
 **Interfaces:**
@@ -1326,7 +1327,7 @@ Run: `python -m unittest test.compilation.test_fixed_variable_elimination -v`
 Expected: PASS, including generated examples.
 
 ```bash
-git add qiskit_finance/compilation/passes/fixed_holdings.py test/compilation/test_fixed_variable_elimination.py
+git add finqir/compilation/passes/fixed_holdings.py test/compilation/test_fixed_variable_elimination.py
 git commit -m "feat: eliminate fixed holdings reversibly"
 ```
 
@@ -1334,8 +1335,8 @@ git commit -m "feat: eliminate fixed holdings reversibly"
 
 **Files:**
 
-- Create: `qiskit_finance/compilation/passes/penalties.py`
-- Modify: `qiskit_finance/compilation/passes/__init__.py`
+- Create: `finqir/compilation/passes/penalties.py`
+- Modify: `finqir/compilation/passes/__init__.py`
 - Create: `test/compilation/test_penalties.py`
 
 **Interfaces:**
@@ -1412,7 +1413,7 @@ python -m unittest discover -s test/mappings -p 'test_*.py' -v
 Expected: PASS.
 
 ```bash
-git add qiskit_finance/compilation/passes/penalties.py qiskit_finance/compilation/passes/__init__.py test/compilation/test_penalties.py
+git add finqir/compilation/passes/penalties.py finqir/compilation/passes/__init__.py test/compilation/test_penalties.py
 git commit -m "feat: calibrate portfolio constraint penalties"
 ```
 
@@ -1420,8 +1421,8 @@ git commit -m "feat: calibrate portfolio constraint penalties"
 
 **Files:**
 
-- Create: `qiskit_finance/compilation/passes/interactions.py`
-- Modify: `qiskit_finance/compilation/passes/__init__.py`
+- Create: `finqir/compilation/passes/interactions.py`
+- Modify: `finqir/compilation/passes/__init__.py`
 - Create: `test/compilation/test_interactions.py`
 
 **Interfaces:**
@@ -1498,7 +1499,7 @@ Run: `python -m unittest test.compilation.test_interactions -v`
 Expected: PASS, including operator equivalence properties.
 
 ```bash
-git add qiskit_finance/compilation/passes/interactions.py qiskit_finance/compilation/passes/__init__.py test/compilation/test_interactions.py
+git add finqir/compilation/passes/interactions.py finqir/compilation/passes/__init__.py test/compilation/test_interactions.py
 git commit -m "feat: schedule commuting finance interactions"
 ```
 
@@ -1506,11 +1507,11 @@ git commit -m "feat: schedule commuting finance interactions"
 
 **Files:**
 
-- Create: `qiskit_finance/compilation/passes/layout.py`
-- Modify: `qiskit_finance/compilation/passes/__init__.py`
+- Create: `finqir/compilation/passes/layout.py`
+- Modify: `finqir/compilation/passes/__init__.py`
 - Create: `test/compilation/test_layout.py`
-- Create: `docs/apidocs/qiskit_finance.compilation.rst`
-- Modify: `docs/apidocs/qiskit_finance.rst`
+- Create: `docs/apidocs/finqir.compilation.rst`
+- Modify: `docs/apidocs/finqir.rst`
 
 **Interfaces:**
 
@@ -1574,7 +1575,7 @@ python -m sphinx -W -T -b html docs docs/_build/html
 Expected: compiler tests, existing tests, and docs pass.
 
 ```bash
-git add qiskit_finance/compilation test/compilation docs/apidocs
+git add finqir/compilation test/compilation docs/apidocs
 git commit -m "feat: add backend-aware finance layout"
 ```
 
@@ -1586,11 +1587,11 @@ git commit -m "feat: add backend-aware finance layout"
 
 **Files:**
 
-- Create: `qiskit_finance/qaoa/__init__.py`
-- Create: `qiskit_finance/qaoa/specification.py`
-- Create: `qiskit_finance/qaoa/initial_states.py`
-- Create: `qiskit_finance/qaoa/mixers/__init__.py`
-- Create: `qiskit_finance/qaoa/mixers/base.py`
+- Create: `finqir/qaoa/__init__.py`
+- Create: `finqir/qaoa/specification.py`
+- Create: `finqir/qaoa/initial_states.py`
+- Create: `finqir/qaoa/mixers/__init__.py`
+- Create: `finqir/qaoa/mixers/base.py`
 - Create: `test/qaoa/__init__.py`
 - Create: `test/qaoa/test_specification.py`
 - Create: `test/qaoa/test_initial_states.py`
@@ -1623,7 +1624,7 @@ Add cases for schedule terms missing/duplicated, wrong circuit width, a basis st
 
 Run: `python -m unittest test.qaoa.test_specification test.qaoa.test_initial_states -v`
 
-Expected: FAIL because `qiskit_finance.qaoa` is absent.
+Expected: FAIL because `finqir.qaoa` is absent.
 
 - [ ] **Step 3: Implement initial-state contracts**
 
@@ -1676,7 +1677,7 @@ Run: `python -m unittest discover -s test/qaoa -p 'test_*.py' -v`
 Expected: PASS.
 
 ```bash
-git add qiskit_finance/qaoa test/qaoa
+git add finqir/qaoa test/qaoa
 git commit -m "feat: define finance QAOA specifications"
 ```
 
@@ -1684,11 +1685,11 @@ git commit -m "feat: define finance QAOA specifications"
 
 **Files:**
 
-- Modify: `qiskit_finance/qaoa/mixers/__init__.py`
-- Modify: `qiskit_finance/qaoa/mixers/base.py`
-- Create: `qiskit_finance/qaoa/mixers/standard.py`
-- Create: `qiskit_finance/qaoa/mixers/conflict_graph.py`
-- Modify: `qiskit_finance/qaoa/__init__.py`
+- Modify: `finqir/qaoa/mixers/__init__.py`
+- Modify: `finqir/qaoa/mixers/base.py`
+- Create: `finqir/qaoa/mixers/standard.py`
+- Create: `finqir/qaoa/mixers/conflict_graph.py`
+- Modify: `finqir/qaoa/__init__.py`
 - Create: `test/qaoa/test_mixers.py`
 
 **Interfaces:**
@@ -1766,7 +1767,7 @@ Run: `python -m unittest test.qaoa.test_mixers -v`
 Expected: PASS with leakage below `1e-10` for every enumerated case.
 
 ```bash
-git add qiskit_finance/qaoa/mixers qiskit_finance/qaoa/__init__.py test/qaoa/test_mixers.py
+git add finqir/qaoa/mixers finqir/qaoa/__init__.py test/qaoa/test_mixers.py
 git commit -m "feat: add constraint-preserving finance mixers"
 ```
 
@@ -1774,10 +1775,10 @@ git commit -m "feat: add constraint-preserving finance mixers"
 
 **Files:**
 
-- Create: `qiskit_finance/qaoa/synthesis.py`
-- Create: `qiskit_finance/compiler.py`
-- Modify: `qiskit_finance/qaoa/__init__.py`
-- Modify: `qiskit_finance/__init__.py`
+- Create: `finqir/qaoa/synthesis.py`
+- Create: `finqir/compiler.py`
+- Modify: `finqir/qaoa/__init__.py`
+- Modify: `finqir/__init__.py`
 - Create: `test/qaoa/test_synthesis.py`
 - Create: `test/test_compiler.py`
 
@@ -1871,7 +1872,7 @@ Expected: PASS; a three-vertex conflict portfolio compiles from finance objects 
 - [ ] **Step 6: Commit circuit compilation**
 
 ```bash
-git add qiskit_finance/qaoa qiskit_finance/compiler.py qiskit_finance/__init__.py test/qaoa test/test_compiler.py
+git add finqir/qaoa finqir/compiler.py finqir/__init__.py test/qaoa test/test_compiler.py
 git commit -m "feat: compile structured portfolios to QAOA circuits"
 ```
 
@@ -1879,11 +1880,11 @@ git commit -m "feat: compile structured portfolios to QAOA circuits"
 
 **Files:**
 
-- Create: `qiskit_finance/results/__init__.py`
-- Create: `qiskit_finance/results/finance_execution_result.py`
-- Create: `qiskit_finance/results/interpreter.py`
-- Create: `qiskit_finance/workflows/__init__.py`
-- Create: `qiskit_finance/workflows/sampling_qaoa.py`
+- Create: `finqir/results/__init__.py`
+- Create: `finqir/results/finance_execution_result.py`
+- Create: `finqir/results/interpreter.py`
+- Create: `finqir/workflows/__init__.py`
+- Create: `finqir/workflows/sampling_qaoa.py`
 - Create: `test/results/__init__.py`
 - Create: `test/results/test_interpreter.py`
 - Create: `test/workflows/__init__.py`
@@ -2012,7 +2013,7 @@ python -m stestr run
 Expected: all result, workflow, QAOA, and existing tests pass without a cloud account.
 
 ```bash
-git add qiskit_finance/results qiskit_finance/workflows test/results test/workflows
+git add finqir/results finqir/workflows test/results test/workflows
 git commit -m "feat: add auditable sampling QAOA workflow"
 ```
 
@@ -2024,9 +2025,9 @@ git commit -m "feat: add auditable sampling QAOA workflow"
 
 **Files:**
 
-- Create: `qiskit_finance/benchmarks/metrics.py`
-- Modify: `qiskit_finance/benchmarks/truba.py`
-- Modify: `qiskit_finance/benchmarks/__init__.py`
+- Create: `finqir/benchmarks/metrics.py`
+- Modify: `finqir/benchmarks/truba.py`
+- Modify: `finqir/benchmarks/__init__.py`
 - Create: `test/benchmarks/test_metrics.py`
 - Modify: `test/benchmarks/test_truba.py`
 - Create: `benchmarks/README.md`
@@ -2035,7 +2036,7 @@ git commit -m "feat: add auditable sampling QAOA workflow"
 **Interfaces:**
 
 - Consumes: TRUBA loader, classical baseline, compiler, workflow, execution results.
-- Produces: `BenchmarkRecord`, `financial_quality_metrics()`, `circuit_metrics()`, paired comparison statistics, and `python -m qiskit_finance.benchmarks.truba benchmark`.
+- Produces: `BenchmarkRecord`, `financial_quality_metrics()`, `circuit_metrics()`, paired comparison statistics, and `python -m finqir.benchmarks.truba benchmark`.
 
 ```python
 @dataclass(frozen=True)
@@ -2169,7 +2170,7 @@ Use this reference content, produced from SciPy MILP and independently rechecked
 Run the local release benchmark:
 
 ```bash
-python -m qiskit_finance.benchmarks.truba benchmark \
+python -m finqir.benchmarks.truba benchmark \
   --input-dir /Users/bilginkocak/hackathon/q-prehackathon/truba/ssb_exam/final \
   --output build/truba-benchmark.json --shots 4096 --seed 101
 ```
@@ -2188,7 +2189,7 @@ python -m stestr run
 Expected: all benchmark and existing tests pass.
 
 ```bash
-git add qiskit_finance/benchmarks test/benchmarks benchmarks
+git add finqir/benchmarks test/benchmarks benchmarks
 git commit -m "feat: benchmark structured QAOA portfolios"
 ```
 
@@ -2214,10 +2215,10 @@ git commit -m "feat: benchmark structured QAOA portfolios"
 - Modify: `docs/tutorials/10_qgan_option_pricing.ipynb`
 - Modify: `docs/tutorials/index.rst`
 - Modify: `docs/index.rst`
-- Create: `docs/apidocs/qiskit_finance.qaoa.rst`
-- Create: `docs/apidocs/qiskit_finance.results.rst`
-- Create: `docs/apidocs/qiskit_finance.workflows.rst`
-- Modify: `docs/apidocs/qiskit_finance.rst`
+- Create: `docs/apidocs/finqir.qaoa.rst`
+- Create: `docs/apidocs/finqir.results.rst`
+- Create: `docs/apidocs/finqir.workflows.rst`
+- Modify: `docs/apidocs/finqir.rst`
 - Modify: `README.md`
 - Modify: `.github/workflows/main.yml`
 - Create: `releasenotes/notes/structured-quantum-finance-8f73c16a2d9450be.yaml`
@@ -2279,7 +2280,7 @@ class CountDenseAssets:
 
 - [ ] **Step 5: Finish API docs and release notes**
 
-Autosummary every intentionally stable type from `problems`, `mappings`, `compilation`, `qaoa`, `results`, and `workflows`. Keep compiler internals out of top-level `qiskit_finance.__all__`. The release note describes additive APIs, version floors, optional execution dependencies, binary-holding limitation, and the external nature of TRUBA data.
+Autosummary every intentionally stable type from `problems`, `mappings`, `compilation`, `qaoa`, `results`, and `workflows`. Keep compiler internals out of top-level `finqir.__all__`. The release note describes additive APIs, version floors, optional execution dependencies, binary-holding limitation, and the external nature of TRUBA data.
 
 - [ ] **Step 6: Verify every supported quality gate**
 
@@ -2288,11 +2289,11 @@ Run from a fresh Python 3.10 environment with minimum dependencies, then a fresh
 ```bash
 python -m pip check
 python -m stestr run
-black --check qiskit_finance test tools docs
-pylint -rn qiskit_finance test tools
-mypy qiskit_finance test tools
-python tools/check_copyright.py -check
-python tools/verify_headers.py qiskit_finance test tools
+black --check finqir test tools docs
+pylint -rn finqir test tools
+mypy finqir test tools
+python tools/verify_headers.py finqir test tools
+python tools/verify_headers.py finqir test tools
 python -m sphinx -W -T -b html docs docs/_build/html
 ```
 
@@ -2301,7 +2302,7 @@ Expected: every command exits zero in both environments. Run the prerelease CI j
 - [ ] **Step 7: Re-run the external acceptance benchmark**
 
 ```bash
-python -m qiskit_finance.benchmarks.truba benchmark \
+python -m finqir.benchmarks.truba benchmark \
   --input-dir /Users/bilginkocak/hackathon/q-prehackathon/truba/ssb_exam/final \
   --output build/truba-benchmark.json --shots 4096 --seed 101 --force
 ```

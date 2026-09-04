@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2021, 2023.
 #
@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Extract deprecation messages from input """
+"""Extract deprecation messages from input"""
 
 from typing import List
 import sys

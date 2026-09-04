@@ -1,7 +1,97 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "finqir"
+version = "0.1.0"
+description = "Structured quantum-finance modeling and compilation for Qiskit"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
+authors = [
+    { name = "FinQIR Contributors" },
+]
+keywords = [
+    "finance",
+    "optimization",
+    "portfolio",
+    "qaoa",
+    "qiskit",
+    "quantum computing",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "certifi",
+    "fastdtw>=0.3.4",
+    "nasdaq-data-link>=1.0.4",
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "psutil>=5",
+    "qiskit>=2.5.2,<3",
+    "qiskit-algorithms>=0.4.0,<0.5",
+    "qiskit-optimization>=0.7.0,<0.8",
+    "scipy>=1.11",
+    "urllib3",
+    "yfinance>=0.2.66",
+]
+
+[project.optional-dependencies]
+test = [
+    "coverage>=7",
+    "ddt>=1.6,!=1.7.0",
+    "qiskit-aer>=0.17",
+    "stestr>=4",
+    "tomli>=2",
+]
+dev = [
+    "black[jupyter]>=24.10",
+    "build>=1.2",
+    "mypy>=1.11",
+    "pylint>=3.2",
+    "twine>=6",
+    "types-certifi",
+]
+docs = [
+    "jupyter-sphinx",
+    "matplotlib>=3.8",
+    "nbsphinx",
+    "pylatexenc>=1.4",
+    "qiskit-sphinx-theme>=1.16",
+    "reno>=4",
+    "Sphinx>=7",
+    "sphinx-design>=0.6",
+    "sphinxcontrib-spelling",
+]
+
+[project.urls]
+Documentation = "https://bilgin-kocak.github.io/finqir/"
+Issues = "https://github.com/bilgin-kocak/finqir/issues"
+Repository = "https://github.com/bilgin-kocak/finqir"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["finqir", "finqir.*"]
+
+[tool.setuptools.package-data]
+finqir = ["VERSION.txt", "py.typed"]
 
 [tool.black]
 line-length = 100
-target-version = ['py38', 'py39', 'py310', 'py311']
+target-version = ["py310", "py311", "py312"]

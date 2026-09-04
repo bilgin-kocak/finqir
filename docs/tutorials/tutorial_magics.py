@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2017, 2024
 #
@@ -13,7 +13,6 @@
 
 """A module for version and copyright magics."""
 
-import datetime
 import platform
 import time
 from sys import modules
@@ -23,6 +22,7 @@ from IPython.core.magic import line_magic, Magics, magics_class
 from IPython.display import HTML, display
 
 import qiskit
+import finqir
 
 
 @magics_class
@@ -30,14 +30,13 @@ class Copyright(Magics):
     """A class of status magic functions."""
 
     @line_magic
-    def qiskit_copyright(self, line="", cell=None):
-        """A Jupyter magic function return qiskit copyright"""
-        now = datetime.datetime.now()
-
+    def finqir_copyright(self, line="", cell=None):
+        """Display the FinQIR project and licensing notice."""
         html = "<div style='width: 100%; background-color:#d5d9e0;"
         html += "padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'>"
-        html += "<h3>This code is a part of a Qiskit project</h3>"
-        html += "<p>&copy; Copyright IBM 2017, %s.</p>" % now.year
+        html += "<h3>FinQIR: independent software built on Qiskit</h3>"
+        html += "<p>FinQIR includes code derived from Qiskit Finance; "
+        html += "existing copyright notices are retained.</p>"
         html += "<p>This code is licensed under the Apache License, Version 2.0. You may<br>"
         html += "obtain a copy of this license in the LICENSE.txt file in the root directory<br> "
         html += "of this source tree or at http://www.apache.org/licenses/LICENSE-2.0."
@@ -54,7 +53,7 @@ class VersionTable(Magics):
     """A class of status magic functions."""
 
     @line_magic
-    def qiskit_version_table(self, line="", cell=None):
+    def finqir_version_table(self, line="", cell=None):
         """
         Print an HTML-formatted table with version numbers for Qiskit and its
         dependencies. This should make it possible to reproduce the environment
@@ -64,7 +63,7 @@ class VersionTable(Magics):
         html += "<table>"
         html += "<tr><th>Software</th><th>Version</th></tr>"
 
-        packages = {"qiskit": qiskit.__version__}
+        packages = {"finqir": finqir.__version__, "qiskit": qiskit.__version__}
         qiskit_modules = {module.split(".")[0] for module in modules.keys() if "qiskit" in module}
 
         for qiskit_module in qiskit_modules:

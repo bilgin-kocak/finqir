@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2018, 2023.
 #
@@ -33,7 +33,7 @@ def _noop(*args, **kargs):
 # warnings.warn = _noop
 
 
-class QiskitFinanceTestCase(unittest.TestCase, ABC):
+class FinQIRTestCase(unittest.TestCase, ABC):
     """Finance Test Case"""
 
     moduleName = None
@@ -71,7 +71,7 @@ class QiskitFinanceTestCase(unittest.TestCase, ABC):
             # to INFO if it is not a valid level.
             level = logging._nameToLevel.get(os.getenv("LOG_LEVEL"), logging.INFO)
             cls.log.setLevel(level)
-            logger = logging.getLogger("qiskit_finance")
+            logger = logging.getLogger("finqir")
             logger.addHandler(file_handler)
             logger.setLevel(level)
 

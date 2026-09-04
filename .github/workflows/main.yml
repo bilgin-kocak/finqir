@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2021, 2024.
 #
@@ -10,336 +10,63 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-name: Finance Unit Tests
+name: FinQIR CI
 
 on:
   push:
-    branches:
-      - main
-      - 'stable/**'
+    branches: [main]
   pull_request:
-    branches:
-      - main
-      - 'stable/**'
-  schedule:
-    # run every day at 1AM
-    - cron: '0 1 * * *'
+    branches: [main]
+  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  Checks:
-    if: github.repository_owner == 'qiskit-community'
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.8]
-    steps:
-      - name: Print Concurrency Group
-        env:
-          CONCURRENCY_GROUP: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
-        run: |
-          echo -e "\033[31;1;4mConcurrency Group\033[0m"
-          echo -e "$CONCURRENCY_GROUP\n"
-        shell: bash
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: |
-            setup.py
-            requirements.txt
-            requirements-dev.txt
-      - uses: ./.github/actions/install-main-dependencies
-        with:
-          os: ${{ matrix.os }}
-          python-version: ${{ matrix.python-version }}
-          qiskit-main: "false"
-        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
-      - uses: ./.github/actions/install-finance
-        with:
-          os: ${{ matrix.os }}
-      - name: Install Dependencies
-        run: |
-          pip install jupyter qiskit[visualization]
-          sudo apt-get -y install pandoc graphviz
-          sudo apt-get -y install python3-enchant
-          sudo apt-get -y install hunspell-en-us
-          pip install pyenchant
-          echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
-        shell: bash
-      - run:  pip check
-        if: ${{ !cancelled() }}
-        shell: bash
-      - name: Copyright Check
-        run: |
-          python tools/check_copyright.py -check
-        if: ${{ !cancelled() }}
-        shell: bash
-      - run:  make spell
-        if: ${{ !cancelled() }}
-        shell: bash
-      - name: Style Check
-        run: |
-          make clean_sphinx
-          make style
-        if: ${{ !cancelled() }}
-        shell: bash
-      - name: Run make html
-        run:  |
-          make clean_sphinx
-          make html
-          cd docs/_build/html
-          mkdir artifacts
-          tar -zcvf artifacts/documentation.tar.gz --exclude=./artifacts .
-        if: ${{ !cancelled() }}
-        shell: bash
-      - name: Run upload documentation
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation
-          path: docs/_build/html/artifacts/documentation.tar.gz
-        if: ${{ !cancelled() }}
-      - run:  make doctest
-        if: ${{ !cancelled() }}
-        shell: bash
-  Finance:
-    if: github.repository_owner == 'qiskit-community'
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.8, 3.9, '3.10', 3.11, 3.12]
-        include:
-          - os: macos-latest
-            python-version: 3.8
-          - os: macos-latest
-            python-version: 3.12
-          - os: windows-latest
-            python-version: 3.8
-          - os: windows-latest
-            python-version: 3.11
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: |
-            setup.py
-            requirements.txt
-            requirements-dev.txt
-      - name: install Windows dependencies
-        run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda create -y -n scsenv python=${{ matrix.python-version }}
-          conda activate scsenv
-          conda install -y scs lapack cvxpy -c conda-forge
-        if: ${{ matrix.os == 'windows-latest' }}
-        shell: bash
-      - uses: ./.github/actions/install-main-dependencies
-        with:
-          os: ${{ matrix.os }}
-          python-version: ${{ matrix.python-version }}
-        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
-      - uses: ./.github/actions/install-finance
-        with:
-          os: ${{ matrix.os }}
-      - name: Run lint
-        run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            source "$CONDA/etc/profile.d/conda.sh"
-            conda activate scsenv
-          fi
-          make lint
-        shell: bash
-      - name: Run mypy
-        run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            source "$CONDA/etc/profile.d/conda.sh"
-            conda activate scsenv
-          fi
-          make mypy
-        if: ${{ !cancelled() }}
-        shell: bash
-      - name: Finance Unit Tests under Python ${{ matrix.python-version }}
-        uses: ./.github/actions/run-tests
-        with:
-          os: ${{ matrix.os }}
-          event-name: ${{ github.event_name }}
-          run-slow: ${{ contains(github.event.pull_request.labels.*.name, 'run_slow') }}
-          python-version: ${{ matrix.python-version }}
-        if: ${{ !cancelled() }}
-      - name: Deprecation Messages
-        run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            source "$CONDA/etc/profile.d/conda.sh"
-            conda activate scsenv
-          fi
-          mkdir ./ci-artifact-data
-          python tools/extract_deprecation.py -file out.txt -output ./ci-artifact-data/fin.dep
-        shell: bash
-      - name: Coverage combine
-        run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            source "$CONDA/etc/profile.d/conda.sh"
-            conda activate scsenv
-          fi
-          coverage3 combine
-          mv .coverage ./ci-artifact-data/fin.dat
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == 3.8 }}
-        shell: bash
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}-${{ matrix.python-version }}
-          path: ./ci-artifact-data/*
-  Tutorials:
-    if: github.repository_owner == 'qiskit-community'
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.8, 3.12]
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: |
-            setup.py
-            requirements.txt
-            requirements-dev.txt
-      - uses: ./.github/actions/install-main-dependencies
-        with:
-          os: ${{ matrix.os }}
-          python-version: ${{ matrix.python-version }}
-        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
-      - uses: ./.github/actions/install-finance
-        with:
-          os: ${{ matrix.os }}
-      - name: Install Dependencies
-        run: |
-          pip install jupyter qiskit[visualization]
-          sudo apt-get install -y pandoc graphviz
-        shell: bash
-      - name: Run Finance Tutorials
-        env:
-          QISKIT_PARALLEL: False
-          QISKIT_DOCS_BUILD_TUTORIALS: 'always'
-        run: |
-          echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
-          make html
-          cd docs/_build/html
-          mkdir artifacts
-          tar -zcvf artifacts/tutorials.tar.gz --exclude=./artifacts .
-        shell: bash
-      - name: Run upload tutorials
-        uses: actions/upload-artifact@v4
-        with:
-          name: tutorials${{ matrix.python-version }}
-          path: docs/_build/html/artifacts/tutorials.tar.gz
-      - name: Run stable tutorials
-        env:
-          QISKIT_PARALLEL: False
-          QISKIT_DOCS_BUILD_TUTORIALS: 'always'
-        run: |
-          # clean last sphinx output
-          make clean_sphinx
-          # get current version
-          version=$(pip show qiskit-finance | awk -F. '/^Version:/ { print substr($1,10), $2-1 }' OFS=.)
-          # download stable version
-          wget https://codeload.github.com/qiskit-community/qiskit-finance/zip/stable/$version -O /tmp/repo.zip
-          unzip /tmp/repo.zip -d /tmp/
-          # copy stable tutorials to main tutorials
-          rm -rf docs/tutorials/*
-          cp -R /tmp/qiskit-finance-stable-$version/docs/tutorials/* docs/tutorials
-          # run tutorials and zip results
-          echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
-          # ignore unreleased/untagged notes
-          tools/ignore_untagged_notes.sh
-          make html
-          cd docs/_build/html
-          mkdir artifacts
-          tar -zcvf artifacts/tutorials.tar.gz --exclude=./artifacts .
-        if: ${{ matrix.python-version == 3.8 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
-        shell: bash
-      - name: Run upload stable tutorials
-        uses: actions/upload-artifact@v4
-        with:
-          name: tutorials-stable${{ matrix.python-version }}
-          path: docs/_build/html/artifacts/tutorials.tar.gz
-        if: ${{ matrix.python-version == 3.8 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
-  Deprecation_Messages_and_Coverage:
-    if: github.repository_owner == 'qiskit-community'
-    needs: [Checks, Finance, Tutorials]
+  test:
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/download-artifact@v5
-        with:
-          name: ubuntu-latest-3.8
-          path: /tmp/f38
-      - uses: actions/download-artifact@v5
-        with:
-          name: ubuntu-latest-3.9
-          path: /tmp/f39
-      - uses: actions/download-artifact@v5
-        with:
-          name: ubuntu-latest-3.10
-          path: /tmp/f310
-      - uses: actions/download-artifact@v5
-        with:
-          name: ubuntu-latest-3.11
-          path: /tmp/f311
-      - uses: actions/download-artifact@v5
-        with:
-          name: ubuntu-latest-3.12
-          path: /tmp/f312
-      - uses: actions/download-artifact@v5
-        with:
-          name: macos-latest-3.8
-          path: /tmp/m38
-      - uses: actions/download-artifact@v5
-        with:
-          name: macos-latest-3.12
-          path: /tmp/m311
-      - uses: actions/download-artifact@v5
-        with:
-          name: windows-latest-3.8
-          path: /tmp/w38
-      - uses: actions/download-artifact@v5
-        with:
-          name: windows-latest-3.11
-          path: /tmp/w310
-      - name: Install Dependencies
-        run: pip install -U coverage coveralls diff-cover
-        shell: bash
-      - name: Combined Deprecation Messages
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install FinQIR
+        run: python -m pip install -e ".[test,dev]"
+      - name: Check dependencies
+        run: python -m pip check
+      - name: Run unit tests
+        run: python -m unittest discover -s test -v
+      - name: Check formatting
+        run: python -m black --check finqir test tools docs
+      - name: Run static analysis
         run: |
-          sort -f -u /tmp/f38/fin.dep /tmp/f39/fin.dep /tmp/f310/fin.dep /tmp/f311/fin.dep /tmp/f312/fin.dep /tmp/m38/fin.dep /tmp/m312/fin.dep /tmp/w38/fin.dep /tmp/w311/fin.dep || true
-        shell: bash
-      - name: Coverage combine
-        run: coverage3 combine /tmp/f38/fin.dat
-        shell: bash
-      - name: Upload to Coveralls
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: coveralls --service=github
-        shell: bash
+          python -m pylint --persistent=n -rn finqir test tools
+          python -m mypy finqir test tools
+      - name: Check source headers
+        run: python tools/verify_headers.py finqir test tools
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install build tools
+        run: python -m pip install build twine
+      - name: Build distributions
+        run: python -m build
+      - name: Validate distributions
+        run: python -m twine check dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: finqir-distributions
+          path: dist/

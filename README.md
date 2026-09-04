@@ -1,108 +1,94 @@
-# Qiskit Finance
+# FinQIR
 
-[![License](https://img.shields.io/github/license/Qiskit/qiskit-finance.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)<!--- long-description-skip-begin -->[![Build Status](https://github.com/qiskit-community/qiskit-finance/workflows/Finance%20Unit%20Tests/badge.svg?branch=main)](https://github.com/qiskit-community/qiskit-finance/actions?query=workflow%3A"Finance%20Unit%20Tests"+branch%3Amain+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-finance.svg?style=popout-square)](https://github.com/qiskit-community/qiskit-finance/releases)[![](https://img.shields.io/pypi/dm/qiskit-finance.svg?style=popout-square)](https://pypi.org/project/qiskit-finance/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-finance/badge.svg?branch=main)](https://coveralls.io/github/Qiskit/qiskit-finance?branch=main)<!--- long-description-skip-end -->
+**Financial Quantum Intermediate Representation**
 
-**Qiskit Finance** is an open-source framework that contains uncertainty components for stock/securities problems,
-applications, such as portfolio optimization, and data providers to source real or random data to
-finance experiments.
+FinQIR is an independent, Apache-2.0-licensed Python toolkit for structured
+quantum-finance modeling, compilation, and optimization on Qiskit. It is built
+for finance engineers who need recognizable financial concepts and quantum
+engineers who need inspectable mappings, constraints, circuits, and results.
+
+> [!IMPORTANT]
+> FinQIR is an independent community project. It is not an IBM product and is
+> not affiliated with or endorsed by IBM or the Qiskit project.
+
+FinQIR begins with useful portfolio, pricing, probability-distribution, and
+market-data components derived from the Apache-licensed Qiskit Finance project.
+Its roadmap adds structured portfolio problems, traceable financial mappings,
+finance-aware compilation passes, constraint-preserving QAOA, and reproducible
+benchmarks.
 
 ## Installation
 
-We encourage installing Qiskit Finance via the pip tool (a python package manager).
+After the first PyPI release, install FinQIR with:
 
 ```bash
-pip install qiskit-finance
+pip install finqir
 ```
 
-**pip** will handle all dependencies automatically and you will always install the latest
-(and well-tested) version.
+Until then, install the development version from source:
 
-If you want to work on the very latest work-in-progress versions, either to try features ahead of
-their official release or if you want to contribute to Finance, then you can install from source.
-To do this follow the instructions in the
- [documentation](https://qiskit-community.github.io/qiskit-finance/getting_started.html#installation).
+```bash
+git clone https://github.com/bilgin-kocak/finqir.git
+cd finqir
+python -m pip install -e ".[test,dev]"
+```
 
+FinQIR 0.1 targets Python 3.10 or newer and Qiskit 2.5.2.
 
-----------------------------------------------------------------------------------------------------
-
-### Creating Your First Finance Programming Experiment in Qiskit
-
-Now that Qiskit Finance is installed, it's time to begin working with the finance module.
-Let's try an experiment using Amplitude Estimation algorithm to
-evaluate a fixed income asset with uncertain interest rates.
+## Example
 
 ```python
 import numpy as np
-from qiskit.primitives import Sampler
-from qiskit_algorithms import AmplitudeEstimation
-from qiskit_finance.circuit.library import NormalDistribution
-from qiskit_finance.applications import FixedIncomePricing
 
-# Create a suitable multivariate distribution
-num_qubits = [2, 2]
-bounds = [(0, 0.12), (0, 0.24)]
-mvnd = NormalDistribution(
-    num_qubits, mu=[0.12, 0.24], sigma=0.01 * np.eye(2), bounds=bounds
+from finqir.applications.optimization import PortfolioOptimization
+
+problem = PortfolioOptimization(
+    expected_returns=np.array([0.10, 0.08, 0.12]),
+    covariances=np.array(
+        [
+            [0.10, 0.02, 0.03],
+            [0.02, 0.08, 0.01],
+            [0.03, 0.01, 0.09],
+        ]
+    ),
+    risk_factor=0.5,
+    budget=2,
 )
 
-# Create fixed income component
-fixed_income = FixedIncomePricing(
-    num_qubits,
-    np.eye(2),
-    np.zeros(2),
-    cash_flow=[1.0, 2.0],
-    rescaling_factor=0.125,
-    bounds=bounds,
-    uncertainty_model=mvnd,
-)
-
-# the FixedIncomeExpectedValue provides us with the necessary rescalings
-
-# create the A operator for amplitude estimation
-problem = fixed_income.to_estimation_problem()
-
-# Set number of evaluation qubits (samples)
-num_eval_qubits = 5
-
-# Construct and run amplitude estimation
-sampler = Sampler()
-algo = AmplitudeEstimation(num_eval_qubits=num_eval_qubits, sampler=sampler)
-result = algo.estimate(problem)
-
-print(f"Estimated value:\t{fixed_income.interpret(result):.4f}")
-print(f"Probability:    \t{result.max_probability:.4f}")
+quadratic_program = problem.to_quadratic_program()
+print(quadratic_program.prettyprint())
 ```
-When running the above the estimated value result should be 2.46 and probability 0.8487.
 
-### Further examples
+## Planned structured API
 
-Learning path notebooks may be found in the
-[finance tutorials](https://qiskit-community.github.io/qiskit-finance/tutorials/index.html) section
-of the documentation and are a great place to start.
+The design and implementation roadmap cover:
 
-----------------------------------------------------------------------------------------------------
+- `StructuredPortfolioProblem` with named financial constraints;
+- binary, integer, unary, domain-wall, and fixed-cardinality mappings;
+- finance-aware problem and circuit compilation passes;
+- constraint-preserving QAOA mixers;
+- conflict-graph portfolios and constrained MIS problems;
+- multi-period rebalancing, risk, pricing, and benchmarking extensions.
 
-## Contribution Guidelines
+These APIs are roadmap items and are not part of the initial package foundation.
+See the [approved design](docs/superpowers/specs/2026-09-04-structured-quantum-finance-design.md)
+and [implementation plan](docs/superpowers/plans/2026-09-04-structured-quantum-finance.md).
 
-If you'd like to contribute to Qiskit, please take a look at our
-[contribution guidelines](https://github.com/qiskit-community/qiskit-finance/blob/main/CONTRIBUTING.md).
-This project adheres to Qiskit's [code of conduct](https://github.com/qiskit-community/qiskit-finance/blob/main/CODE_OF_CONDUCT.md).
-By participating, you are expected to uphold this code.
+## Development
 
-We use [GitHub issues](https://github.com/qiskit-community/qiskit-finance/issues) for tracking requests and bugs. Please
-[join the Qiskit Slack community](https://qisk.it/join-slack)
-and for discussion and simple questions.
-For questions that are more suited for a forum, we use the **Qiskit** tag in [Stack Overflow](https://stackoverflow.com/questions/tagged/qiskit).
+```bash
+python -m pip install -e ".[test,dev]"
+python -m unittest discover -s test -v
+python -m build
+python -m twine check dist/*
+```
 
-## Authors and Citation
+## Project history and license
 
-Finance was inspired, authored and brought about by the collective work of a team of researchers.
-Finance continues to grow with the help and work of
-[many people](https://github.com/qiskit-community/qiskit-finance/graphs/contributors), who contribute
-to the project at different levels.
-If you use Qiskit, please cite as per the provided
-[BibTeX file](https://github.com/Qiskit/qiskit/blob/main/CITATION.bib).
+FinQIR is an independent derivative of
+[Qiskit Finance](https://github.com/qiskit-community/qiskit-finance). Existing
+copyright notices are retained in derived files. New FinQIR work is released
+under the same [Apache License 2.0](LICENSE.txt).
 
-## License
-
-This project uses the [Apache License 2.0](https://github.com/qiskit-community/qiskit-finance/blob/main/LICENSE.txt).
+FinQIR is research software. It does not provide investment advice and must not
+be treated as a guarantee of financial performance or quantum advantage.

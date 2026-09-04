@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2019, 2023.
 #
@@ -10,23 +10,23 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Portfolio Optimization class"""
+"""Test Portfolio Optimization class"""
 
 import logging
 import unittest
-from test import QiskitFinanceTestCase
+from test import FinQIRTestCase
 from ddt import ddt, data, unpack
 import numpy as np
 
 from qiskit_optimization.problems import QuadraticProgram
-from qiskit_finance.applications.optimization import PortfolioOptimization
-from qiskit_finance.exceptions import QiskitFinanceError
+from finqir.applications.optimization import PortfolioOptimization
+from finqir.exceptions import FinQIRError
 
 logger = logging.getLogger(__name__)
 
 
 @ddt
-class TestPortfolioDiversification(QiskitFinanceTestCase):
+class TestPortfolioDiversification(FinQIRTestCase):
     """Tests Portfolio Diversification application class."""
 
     def setUp(self):
@@ -118,7 +118,7 @@ class TestPortfolioDiversification(QiskitFinanceTestCase):
     @unpack
     def test_is_compatibility(self, expected_returns, covariances, risk_factor, budget, bounds):
         """Test error cases in _is_compatibility"""
-        with self.assertRaises(QiskitFinanceError):
+        with self.assertRaises(FinQIRError):
             _ = PortfolioOptimization(expected_returns, covariances, risk_factor, budget, bounds)
 
     def test_interpret(self):

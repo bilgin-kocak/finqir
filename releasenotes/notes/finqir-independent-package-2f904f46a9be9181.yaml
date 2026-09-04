@@ -1,0 +1,12 @@
+prelude: >
+  FinQIR 0.1.0 establishes an independent Python distribution and import
+  namespace for structured quantum-finance development on Qiskit.
+features:
+  - >
+    The project is installed with ``pip install finqir`` and imported through
+    ``finqir``. It does not install a ``qiskit_finance`` compatibility package.
+upgrade:
+  - >
+    Code inherited from Qiskit Finance is exposed under ``finqir``. Replace
+    imports beginning with ``qiskit_finance`` when intentionally migrating an
+    application to FinQIR.

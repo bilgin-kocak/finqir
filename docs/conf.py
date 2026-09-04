@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2021, 2025.
 #
@@ -30,21 +30,23 @@ from datetime import date
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.append(os.path.abspath("."))
 
-import qiskit_finance
+import finqir
 
 # Set env flag so that we can doc functions that may otherwise not be loaded
 # see for example interactive visualizations in qiskit.visualization.
 os.environ["QISKIT_DOCS"] = "TRUE"
 
 # -- Project information -----------------------------------------------------
-project = "Qiskit Finance"
-copyright = f"2018, {date.today().year}, Qiskit Finance Development Team"  # pylint: disable=redefined-builtin
-author = "Qiskit Finance Development Team"
+project = "FinQIR"
+copyright = (
+    f"2018, {date.today().year}, FinQIR Development Team"  # pylint: disable=redefined-builtin
+)
+author = "FinQIR Development Team"
 
 # The short X.Y version
-version = qiskit_finance.__version__
+version = finqir.__version__
 # The full version, including alpha/beta/rc tags
-release = qiskit_finance.__version__
+release = finqir.__version__
 
 rst_prolog = """
 .. raw:: html
@@ -52,9 +54,7 @@ rst_prolog = """
     <br><br><br>
 
 .. |version| replace:: {0}
-""".format(
-    release
-)
+""".format(release)
 
 nbsphinx_prolog = """
 {% set docname = env.doc2path(env.docname, base=None) %}
@@ -69,14 +69,13 @@ nbsphinx_prolog = """
         __"""
 
 vers = version.split(".")
-link_str = (
-    f" https://github.com/qiskit-community/qiskit-finance/blob/stable/{vers[0]}.{vers[1]}/docs/"
-)
+link_str = " https://github.com/bilgin-kocak/finqir/blob/main/docs/"
 nbsphinx_prolog += link_str + "{{ docname }}"
 
 # -- General configuration ---------------------------------------------------
 
 extensions = [
+    "matplotlib.sphinxext.plot_directive",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
@@ -93,10 +92,10 @@ extensions = [
 ]
 templates_path = ["_templates"]
 
-docs_url_prefix = "qiskit-finance"
+docs_url_prefix = "finqir"
 
 nbsphinx_timeout = 360
-nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
+nbsphinx_execute = os.getenv("FINQIR_DOCS_BUILD_TUTORIALS", "never")
 nbsphinx_widgets_path = ""
 nbsphinx_thumbnails = {
     "**": "_static/images/logo.png",
@@ -161,7 +160,7 @@ add_module_names = False
 # (e.g., if this is set to ['foo.'], then foo.bar is shown under B, not F).
 # This can be handy if you document a project that consists of a single
 # package. Works only for the HTML builder currently.
-modindex_common_prefix = ["qiskit_finance."]
+modindex_common_prefix = ["finqir."]
 
 # -- Configuration for extlinks extension ------------------------------------
 # Refer to https://www.sphinx-doc.org/en/master/usage/extensions/extlinks.html

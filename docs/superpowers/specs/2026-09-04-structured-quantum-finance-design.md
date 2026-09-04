@@ -4,15 +4,15 @@
 
 **Date:** 2026-09-04
 
-**Target:** A modern, upstream-first evolution of `qiskit-finance` for Qiskit 2.5+
+**Target:** FinQIR, an independent Python library for Qiskit 2.5+
 
 ## 1. Summary
 
-This design evolves `qiskit-finance` from a collection of finance applications,
-circuits, and data providers into a structured finance modeling and compilation
-toolbox. Financial meaning is preserved until late in the workflow instead of
-being discarded when a problem is converted immediately to a generic QUBO or
-qubit circuit.
+This design evolves FinQIR from its inherited collection of finance
+applications, circuits, and data providers into an independent structured
+finance modeling and compilation toolbox. Financial meaning is preserved until
+late in the workflow instead of being discarded when a problem is converted
+immediately to a generic QUBO or qubit circuit.
 
 The design serves two primary audiences:
 
@@ -49,7 +49,8 @@ Independent Set problems in the TRUBA quantum-algorithm competition.
 
 The first implementation will not:
 
-- preserve compatibility with every `qiskit-finance` 0.4.1 API;
+- provide an import-compatible replacement for the official `qiskit_finance`
+  package;
 - provide a new generic optimization modeling language;
 - implement general-purpose quantum optimizers already owned by other Qiskit
   packages;
@@ -60,13 +61,16 @@ The first implementation will not:
 - use a Rust core before the Python interfaces and profiling evidence justify
   one.
 
-Existing APIs may remain temporarily while the new modules are developed, but
-they are not architectural dependencies of the new design.
+Inherited APIs remain under the independent `finqir` namespace while the new
+modules are developed, but they are not architectural dependencies of the new
+design.
 
 ## 4. Version and dependency policy
 
 The first release targets:
 
+- distribution and import name `finqir`;
+- version `0.1.0`;
 - Python 3.10 or newer;
 - Qiskit `>=2.5.2,<3`;
 - `qiskit-addon-opt-mapper>=0.1.0`;
@@ -248,7 +252,7 @@ and an optimizer supplied by the caller.
 The high-level facade is intentionally small:
 
 ```python
-from qiskit_finance.workflows import solve
+from finqir.workflows import solve
 
 result = solve(
     problem,
@@ -288,7 +292,7 @@ repaired and preserve the original sample.
 The proposed modules are:
 
 ```text
-qiskit_finance/
+finqir/
     problems/
         structured_portfolio_problem.py
         assets.py
@@ -326,10 +330,12 @@ Only stable, intentionally supported classes are re-exported from package
 `__init__.py` files. Compiler internals remain importable from their defining
 modules but are not promoted prematurely.
 
-New modules are additive through the 0.1-0.6 development sequence. Existing
-0.4.1 modules may remain present, but the new implementation does not depend on
-them and does not promise behavioral compatibility. Removing or redirecting an
-existing public API requires a separate deprecation and major-version proposal.
+New modules are additive through the 0.1-0.6 development sequence. Inherited
+behavior remains available under `finqir` unless Qiskit 2.x removed the
+underlying dependency API. FinQIR intentionally provides no `qiskit_finance`
+compatibility namespace, because that would collide with the official
+distribution. Removing an inherited public FinQIR import requires a separate
+deprecation proposal after the first public release.
 
 ## 7. `ConflictGraphPortfolio`
 
@@ -382,7 +388,7 @@ claims.
 ## 8. Errors and diagnostics
 
 The new modules use a small exception hierarchy rooted at
-`QiskitFinanceError`:
+`FinQIRError`:
 
 - `InvalidFinanceProblemError` for malformed dimensions, identifiers, or
   numeric inputs;

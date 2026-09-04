@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2019, 2024.
 #
@@ -10,18 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Data Providers """
+"""Test Data Providers"""
 
 import unittest
 import warnings
 import os
 import datetime
-from test import QiskitFinanceTestCase
+from test import FinQIRTestCase
 from ddt import ddt, data, unpack
 import nasdaqdatalink
 import numpy as np
-from qiskit_finance import QiskitFinanceError
-from qiskit_finance.data_providers import (
+from finqir import FinQIRError
+from finqir.data_providers import (
     RandomDataProvider,
     WikipediaDataProvider,
     YahooDataProvider,
@@ -30,9 +30,11 @@ from qiskit_finance.data_providers import (
     ExchangeDataProvider,
 )
 
+RUN_ONLINE_TESTS = os.getenv("FINQIR_RUN_ONLINE_TESTS", "").lower() == "true"
+
 
 @ddt
-class TestDataProviders(QiskitFinanceTestCase):
+class TestDataProviders(FinQIRTestCase):
     """Tests data providers for the Portfolio Optimization and Diversification."""
 
     logger = None
@@ -60,9 +62,9 @@ class TestDataProviders(QiskitFinanceTestCase):
         # (and can take seconds or minutes,
         # depending on the data volumes, hence not ok in the constructor)
         with self.subTest("test RandomDataProvider get_covariance_matrix"):
-            self.assertRaises(QiskitFinanceError, rnd.get_covariance_matrix)
+            self.assertRaises(FinQIRError, rnd.get_covariance_matrix)
         with self.subTest("test RandomDataProvider get_similarity_matrix"):
-            self.assertRaises(QiskitFinanceError, rnd.get_similarity_matrix)
+            self.assertRaises(FinQIRError, rnd.get_similarity_matrix)
         wiki = WikipediaDataProvider(
             token=self._nasdaq_data_link_api_key,
             tickers=["GOOG", "AAPL"],
@@ -71,9 +73,9 @@ class TestDataProviders(QiskitFinanceTestCase):
         )
         # Now, the .run() method is expected, which does the actual data loading
         with self.subTest("test WikipediaDataProvider get_covariance_matrix"):
-            self.assertRaises(QiskitFinanceError, wiki.get_covariance_matrix)
+            self.assertRaises(FinQIRError, wiki.get_covariance_matrix)
         with self.subTest("test WikipediaDataProvider get_similarity_matrix"):
-            self.assertRaises(QiskitFinanceError, wiki.get_similarity_matrix)
+            self.assertRaises(FinQIRError, wiki.get_similarity_matrix)
 
     def test_yahoo_wrong_use(self):
         """Yahoo! wrong use test"""
@@ -84,9 +86,9 @@ class TestDataProviders(QiskitFinanceTestCase):
         )
         # Now, the .run() method is expected, which does the actual data loading
         with self.subTest("test YahooDataProvider get_covariance_matrix"):
-            self.assertRaises(QiskitFinanceError, yahoo.get_covariance_matrix)
+            self.assertRaises(FinQIRError, yahoo.get_covariance_matrix)
         with self.subTest("test YahooDataProvider get_similarity_matrix"):
-            self.assertRaises(QiskitFinanceError, yahoo.get_similarity_matrix)
+            self.assertRaises(FinQIRError, yahoo.get_similarity_matrix)
 
     def test_random(self):
         """random test"""
@@ -120,6 +122,7 @@ class TestDataProviders(QiskitFinanceTestCase):
         with self.subTest("test get_period_return_covariance_matrix is numpy array"):
             self.assertIsInstance(sigma_value, np.ndarray)
 
+    @unittest.skipUnless(RUN_ONLINE_TESTS, "Set FINQIR_RUN_ONLINE_TESTS=true to run")
     def test_wikipedia(self):
         """wikipedia test"""
         try:
@@ -142,7 +145,7 @@ class TestDataProviders(QiskitFinanceTestCase):
                 np.testing.assert_array_almost_equal(
                     wiki.get_similarity_matrix(), similarity, decimal=3
                 )
-        except QiskitFinanceError as ex:
+        except FinQIRError as ex:
             if isinstance(ex.__cause__, nasdaqdatalink.LimitExceededError):
                 self.skipTest(f"Test of WikipediaDataProvider skipped: {str(ex)}")
             else:
@@ -164,7 +167,7 @@ class TestDataProviders(QiskitFinanceTestCase):
                 end=datetime.datetime(2016, 1, 2),
             )
             nasdaq.run()
-        except QiskitFinanceError as ex:
+        except FinQIRError as ex:
             self.fail(f"Test of DataOnDemandProvider failed: {str(ex)}")
 
     def test_exchangedata(self):
@@ -196,7 +199,7 @@ class TestDataProviders(QiskitFinanceTestCase):
                 np.testing.assert_array_almost_equal(
                     lse.get_similarity_matrix(), similarity, decimal=3
                 )
-        except QiskitFinanceError as ex:
+        except FinQIRError as ex:
             self.fail(f"Test of ExchangeDataProvider failed: {str(ex)}")
 
     @data(
@@ -204,6 +207,7 @@ class TestDataProviders(QiskitFinanceTestCase):
         ["MSFT", 1329.0, [[1.0]]],
     )
     @unpack
+    @unittest.skipUnless(RUN_ONLINE_TESTS, "Set FINQIR_RUN_ONLINE_TESTS=true to run")
     def test_yahoo(self, tickers, covariance, similarity):
         """Yahoo data test."""
         # Note: Unit test reference values above seem to need updating periodically as the
@@ -224,7 +228,7 @@ class TestDataProviders(QiskitFinanceTestCase):
                 np.testing.assert_array_almost_equal(
                     yahoo.get_similarity_matrix(), np.array(similarity), decimal=6
                 )
-        except QiskitFinanceError as ex:
+        except FinQIRError as ex:
             self.fail(f"Test of YahooDataProvider failed: {str(ex)}")
 
 

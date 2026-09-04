@@ -1,7 +1,7 @@
 include LICENSE.txt
 include requirements.txt
-include qiskit_finance/py.typed
-recursive-include qiskit_finance *.txt
+include finqir/py.typed
+recursive-include finqir *.txt
 graft test
 prune docs
 prune tools

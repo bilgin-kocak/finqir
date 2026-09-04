@@ -1,4 +1,4 @@
-# This code is part of a Qiskit project.
+# This file is derived from Qiskit Finance for use in FinQIR.
 #
 # (C) Copyright IBM 2017, 2025.
 #
@@ -13,7 +13,7 @@
 """Test library of probability distribution circuits."""
 
 import unittest
-from test import QiskitFinanceTestCase
+from test import FinQIRTestCase
 
 from ddt import ddt, data, unpack
 import numpy as np
@@ -21,14 +21,14 @@ from scipy.stats import multivariate_normal
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import Statevector
-from qiskit_finance.circuit.library import (
+from finqir.circuit.library import (
     UniformDistribution,
     NormalDistribution,
     LogNormalDistribution,
 )
 
 
-class TestUniformDistribution(QiskitFinanceTestCase):
+class TestUniformDistribution(FinQIRTestCase):
     """Test the uniform distribution circuit."""
 
     def test_uniform(self):
@@ -41,7 +41,7 @@ class TestUniformDistribution(QiskitFinanceTestCase):
 
 
 @ddt
-class TestNormalDistribution(QiskitFinanceTestCase):
+class TestNormalDistribution(FinQIRTestCase):
     """Test the normal distribution circuit."""
 
     def assertDistributionIsCorrect(self, circuit, num_qubits, mu, sigma, bounds, upto_diag):
@@ -146,7 +146,7 @@ class TestNormalDistribution(QiskitFinanceTestCase):
 
 
 @ddt
-class TestLogNormalDistribution(QiskitFinanceTestCase):
+class TestLogNormalDistribution(FinQIRTestCase):
     """Test the log-normal distribution circuit."""
 
     def assertDistributionIsCorrect(self, circuit, num_qubits, mu, sigma, bounds, upto_diag):
