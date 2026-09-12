@@ -15,10 +15,10 @@ import textwrap
 import unittest
 from pathlib import Path
 
-try:
+if sys.version_info >= (3, 11):
     import tomllib as tomllib_loader
-except ModuleNotFoundError:  # pragma: no cover - Python 3.10 compatibility
-    import tomli as tomllib_loader  # type: ignore[no-redef]
+else:
+    import tomli as tomllib_loader
 
 
 class TestOptionalDependencies(unittest.TestCase):
@@ -31,6 +31,8 @@ class TestOptionalDependencies(unittest.TestCase):
         extras = project["optional-dependencies"]
 
         self.assertTrue(any(item.startswith("qiskit-addon-opt-mapper") for item in dependencies))
+        self.assertIn("numpy>=2.0", dependencies)
+        self.assertIn("scipy>=1.14", dependencies)
         self.assertFalse(any(item.startswith("qiskit-algorithms") for item in dependencies))
         self.assertFalse(any(item.startswith("qiskit-optimization") for item in dependencies))
         self.assertIn("algorithms", extras)
