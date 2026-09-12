@@ -16,13 +16,11 @@ FinQIR module (:mod:`finqir`)
 
 .. currentmodule:: finqir
 
-This is the FinQIR module. It has applications based on
+FinQIR provides a structured financial problem representation, auditable
+compiler mappings, exact classical baselines, and applications based on
 `Amplitude Estimation
 <https://qiskit-community.github.io/qiskit-algorithms/apidocs/qiskit_algorithms.html#amplitude-estimators>`__
-and optimization using
-`Qiskit Optimization <https://qiskit-community.github.io/qiskit-optimization/>`__,
-some library circuits useful for finance applications,
-and data providers which supply a source of financial data.
+alongside library circuits and financial data providers.
 
 .. autosummary::
    :toctree: ../stubs/
@@ -40,14 +38,64 @@ Submodules
    :toctree:
 
    applications
+   benchmarks
    circuit
+   compilation
    data_providers
+   mappings
+   problems
 
 """
 
 from .version import __version__
-from .exceptions import FinQIRError
+from .exceptions import (
+    CompilationError,
+    ConstraintPreservationError,
+    FinQIRError,
+    InfeasiblePortfolioError,
+    InterpretationError,
+    InvalidFinanceProblemError,
+    UnsupportedMappingError,
+)
+from .problems import (
+    Asset,
+    CapitalBudget,
+    Cardinality,
+    ExcludedHoldings,
+    ExpectedReturn,
+    ExposureBounds,
+    HoldingVariable,
+    MandatoryHoldings,
+    MutualExclusions,
+    StructuredPortfolioProblem,
+    TransactionCost,
+    VarianceRisk,
+)
+from .applications.optimization import ConflictGraphPortfolio
 
 __title__ = "FinQIR"
 
-__all__ = ["__title__", "__version__", "FinQIRError"]
+__all__ = [
+    "__title__",
+    "__version__",
+    "Asset",
+    "CapitalBudget",
+    "Cardinality",
+    "CompilationError",
+    "ConflictGraphPortfolio",
+    "ConstraintPreservationError",
+    "ExcludedHoldings",
+    "ExpectedReturn",
+    "ExposureBounds",
+    "FinQIRError",
+    "HoldingVariable",
+    "InfeasiblePortfolioError",
+    "InterpretationError",
+    "InvalidFinanceProblemError",
+    "MandatoryHoldings",
+    "MutualExclusions",
+    "StructuredPortfolioProblem",
+    "TransactionCost",
+    "UnsupportedMappingError",
+    "VarianceRisk",
+]

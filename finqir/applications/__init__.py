@@ -27,6 +27,7 @@ Optimization Applications
 
    PortfolioOptimization
    PortfolioDiversification
+   ConflictGraphPortfolio
 
 Estimation Applications
 -----------------------
@@ -43,13 +44,56 @@ Estimation Applications
 
 """
 
-from .estimation import (
-    EstimationApplication,
-    EuropeanCallDelta,
-    EuropeanCallPricing,
-    FixedIncomePricing,
-)
-from .optimization import PortfolioOptimization, PortfolioDiversification
+from importlib import import_module
+from typing import TYPE_CHECKING, Any
+
+from qiskit.exceptions import MissingOptionalLibraryError
+
+if TYPE_CHECKING:
+    from .estimation import (
+        EstimationApplication,
+        EuropeanCallDelta,
+        EuropeanCallPricing,
+        FixedIncomePricing,
+    )
+    from .optimization import (
+        ConflictGraphPortfolio,
+        PortfolioDiversification,
+        PortfolioOptimization,
+    )
+
+_ESTIMATION_NAMES = {
+    "EstimationApplication",
+    "EuropeanCallDelta",
+    "EuropeanCallPricing",
+    "FixedIncomePricing",
+}
+_OPTIMIZATION_NAMES = {"PortfolioOptimization", "PortfolioDiversification"}
+
+
+def __getattr__(name: str) -> Any:
+    """Load legacy applications only when their optional dependency is installed."""
+    if name == "ConflictGraphPortfolio":
+        module = import_module(".optimization", __name__)
+        return getattr(module, name)
+    if name in _ESTIMATION_NAMES:
+        try:
+            module = import_module(".estimation", __name__)
+        except ImportError as exc:
+            raise MissingOptionalLibraryError(
+                "qiskit-algorithms", name, "pip install 'finqir[algorithms]'"
+            ) from exc
+        return getattr(module, name)
+    if name in _OPTIMIZATION_NAMES:
+        try:
+            module = import_module(".optimization", __name__)
+        except ImportError as exc:
+            raise MissingOptionalLibraryError(
+                "qiskit-optimization", name, "pip install 'finqir[legacy]'"
+            ) from exc
+        return getattr(module, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__ = [
     "PortfolioOptimization",
@@ -58,4 +102,5 @@ __all__ = [
     "EuropeanCallDelta",
     "EuropeanCallPricing",
     "FixedIncomePricing",
+    "ConflictGraphPortfolio",
 ]

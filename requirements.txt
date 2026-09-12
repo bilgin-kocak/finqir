@@ -1,12 +1,4 @@
 qiskit>=2.5.2,<3
-qiskit-algorithms>=0.4.0,<0.5
-qiskit-optimization>=0.7.0,<0.8
+qiskit-addon-opt-mapper>=0.1.0,<0.2
 scipy>=1.11
 numpy>=1.26
-psutil>=5
-fastdtw>=0.3.4
-pandas>=2.0
-nasdaq-data-link>=1.0.4
-yfinance>=0.2.66
-certifi
-urllib3

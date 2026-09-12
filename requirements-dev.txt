@@ -1,4 +1,11 @@
 coverage>=7
+qiskit-algorithms>=0.4.0,<0.5
+qiskit-optimization>=0.7.0,<0.8
+fastdtw>=0.3.4
+nasdaq-data-link>=1.0.4
+pandas>=2.0
+psutil>=5
+yfinance>=0.2.66
 matplotlib>=2.1
 black[jupyter]>=24.10
 pylint>=3.2
@@ -20,3 +27,4 @@ types-certifi
 build>=1.2
 twine>=6
 tomli>=2
+hypothesis>=6.100

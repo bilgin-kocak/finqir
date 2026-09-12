@@ -1,0 +1,6 @@
+{
+  "question_id": 2,
+  "case_id": 99,
+  "cizge": [[0, 1, 0], [1, 0, 1], [0, 1, 0]],
+  "zorunlu_dugumler": [0]
+}

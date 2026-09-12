@@ -17,3 +17,27 @@ from qiskit.exceptions import QiskitError
 
 class FinQIRError(QiskitError):
     """Class for errors returned by FinQIR module."""
+
+
+class InvalidFinanceProblemError(FinQIRError):
+    """Raised when a finance model is malformed or internally contradictory."""
+
+
+class InfeasiblePortfolioError(FinQIRError):
+    """Raised when no feasible portfolio can satisfy the requested constraints."""
+
+
+class UnsupportedMappingError(FinQIRError):
+    """Raised when a mapping cannot represent a finance model."""
+
+
+class ConstraintPreservationError(FinQIRError):
+    """Raised when compilation cannot preserve a requested constraint."""
+
+
+class CompilationError(FinQIRError):
+    """Raised when finance compilation fails."""
+
+
+class InterpretationError(FinQIRError):
+    """Raised when a backend result cannot be interpreted safely."""

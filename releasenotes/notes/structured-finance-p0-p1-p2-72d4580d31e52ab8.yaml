@@ -1,0 +1,22 @@
+prelude: >
+  FinQIR 0.2.0 introduces the first end-to-end structured optimization slice,
+  from immutable financial semantics through Optimization Mapper models and
+  exact conflict-graph benchmarks.
+features:
+  - >
+    Adds ``StructuredPortfolioProblem`` with immutable assets, binary holdings,
+    expected return, variance, transaction costs, named constraints, direct
+    contradiction checks, and strict schema-version-1 serialization.
+  - >
+    Adds a reversible financial mapping pipeline backed by
+    ``qiskit-addon-opt-mapper``. It retains source/backend variable maps,
+    constraint names, policy decisions, and interpretation traces.
+  - >
+    Adds ``ConflictGraphPortfolio``, a strict adapter for the four TRUBA input
+    shapes, SHA-256 provenance, and an exact SciPy MILP baseline.
+upgrade:
+  - >
+    ``qiskit-algorithms``, market-data providers, and legacy
+    ``qiskit-optimization`` applications are optional extras. Install
+    ``finqir[algorithms]``, ``finqir[data]``, or ``finqir[legacy]`` when those
+    compatibility surfaces are needed.

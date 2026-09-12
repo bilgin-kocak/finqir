@@ -1,6 +1,6 @@
 .. _finqir-applications:
 
 .. automodule:: finqir.applications
-   :no-members:
+   :members:
    :no-inherited-members:
    :no-special-members:

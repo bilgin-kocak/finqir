@@ -23,7 +23,7 @@ class TestPackageIdentity(unittest.TestCase):
         import finqir
 
         self.assertEqual(finqir.__title__, "FinQIR")
-        self.assertEqual(finqir.__version__, "0.1.0")
+        self.assertEqual(finqir.__version__, "0.2.0")
         self.assertTrue(issubclass(finqir.FinQIRError, QiskitError))
 
     def test_legacy_namespace_is_not_part_of_the_source_tree(self):
@@ -38,7 +38,7 @@ class TestPackageIdentity(unittest.TestCase):
             project = tomli.load(pyproject_file)["project"]
 
         self.assertEqual(project["name"], "finqir")
-        self.assertEqual(project["version"], "0.1.0")
+        self.assertEqual(project["version"], "0.2.0")
         self.assertEqual(
             project["version"],
             project_root.joinpath("finqir", "VERSION.txt").read_text(encoding="utf8").strip(),

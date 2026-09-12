@@ -41,9 +41,9 @@ class TestReadmeSample(FinQIRTestCase):
         except Exception as ex:  # pylint: disable=broad-except
             self.fail(str(ex))
 
-        quadratic_program = namespace["quadratic_program"]
-        self.assertEqual(quadratic_program.get_num_vars(), 3)
-        self.assertEqual(quadratic_program.get_num_linear_constraints(), 1)
+        compiled = namespace["compiled"]
+        self.assertEqual(compiled.optimization_problem.get_num_vars(), 3)
+        self.assertEqual(compiled.optimization_problem.get_num_linear_constraints(), 1)
 
 
 if __name__ == "__main__":

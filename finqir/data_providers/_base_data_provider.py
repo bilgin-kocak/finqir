@@ -26,10 +26,16 @@ from enum import Enum
 import numpy as np
 import fastdtw
 
-from qiskit_algorithms.utils import algorithm_globals
 from ..exceptions import FinQIRError
 
 logger = logging.getLogger(__name__)
+_RNG = np.random.default_rng()
+
+
+def _set_default_rng_seed(seed: int | None) -> None:
+    """Reset the module random generator used for visualization coordinates."""
+    global _RNG  # pylint: disable=global-statement
+    _RNG = np.random.default_rng(seed)
 
 
 class StockMarket(Enum):
@@ -243,8 +249,8 @@ class BaseDataProvider(ABC):
         """
         x_c = np.zeros([self._n, 1])
         y_c = np.zeros([self._n, 1])
-        x_c = (algorithm_globals.random.random(self._n) - 0.5) * 1
-        y_c = (algorithm_globals.random.random(self._n) - 0.5) * 1
+        x_c = (_RNG.random(self._n) - 0.5) * 1
+        y_c = (_RNG.random(self._n) - 0.5) * 1
         # for (cnt, s) in enumerate(self.tickers):
         # x_c[cnt, 1] = self.data[cnt][0]
         # y_c[cnt, 0] = self.data[cnt][-1]
