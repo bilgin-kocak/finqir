@@ -10,12 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Expose the installed FinQIR distribution version."""
+"""Expose the FinQIR package version."""
 
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 try:
-    __version__ = version("finqir")
-except PackageNotFoundError:
     __version__ = Path(__file__).with_name("VERSION.txt").read_text(encoding="utf8").strip()
+except OSError:
+    try:
+        __version__ = version("finqir")
+    except PackageNotFoundError:
+        __version__ = "unknown"
